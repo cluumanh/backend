@@ -1,14 +1,18 @@
 package com.lmc.backend.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
-@Setter
+
 @Getter
-public class BaseDto<ID> {
+@SuperBuilder
+public abstract class BaseDto<ID> {
     private ID id;
-    private LocalDateTime created;
-    private LocalDateTime updated;
+    private Instant created;
+    private Instant updated;
 }

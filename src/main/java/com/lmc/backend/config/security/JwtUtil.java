@@ -5,35 +5,74 @@ import com.google.common.base.Strings;
 import com.lmc.backend.constant.JwtConstants;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.expiration}")
-    private long expiration;
-
+    private final JwtConfig jwtConfig;
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         List<String> roles = extractRoles(userDetails);
         claims.put(JwtConstants.ROLES_CLAIM, roles);
+        claims.put(JwtConstants.TOKEN_TYPE_TEXT, JwtConstants.ACCESS_TOKEN);
         return createToken(claims, userDetails.getUsername());
+    }
+
+    public String generationRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(JwtConstants.TOKEN_TYPE_TEXT, JwtConstants.REFRESH_TOKEN);
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get(JwtConstants.TOKEN_TYPE_TEXT, String.class));
+    }
+
+    public boolean isAccessTokenValid(String token, UserDetails userDetails) {
+        try {
+            final String username = extractUsername(token);
+            final String tokenType = extractTokenType(token);
+
+            return username.equals(userDetails.getUsername())
+                    && !isTokenExpired(token)
+                    && JwtConstants.ACCESS_TOKEN.equals(tokenType);
+        } catch (Exception e) {
+            logger.error("Token validation failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            final String tokenType = extractTokenType(token);
+            return !isTokenExpired(token) && JwtConstants.REFRESH_TOKEN.equals(tokenType);
+        } catch (Exception e) {
+            logger.error("Refresh token validation failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     private List<String> extractRoles(UserDetails userDetails) {
@@ -43,18 +82,18 @@ public class JwtUtil {
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        Date now = new Date();
-        Date expirationTime = new Date(now.getTime() + expiration);
+        long now = System.currentTimeMillis();
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
-                .issuedAt(now)
-                .expiration(expirationTime)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now  + jwtConfig.getAccessExpiration()))
+                .issuer(jwtConfig.getIssuer())
+                .audience().add(jwtConfig.getAudience()).and()
                 .signWith(getSecretKey())
                 .compact();
     }
-
 
     public String extractUsername(String token) {
         try {
@@ -69,6 +108,8 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSecretKey())
+                .requireIssuer(jwtConfig.getIssuer())
+                .requireAudience(jwtConfig.getAudience())
                 .build().parseSignedClaims(token).getPayload();
     }
 
@@ -76,6 +117,8 @@ public class JwtUtil {
         try {
             Jwts.parser()
                     .verifyWith(getSecretKey())
+                    .requireIssuer(jwtConfig.getIssuer())
+                    .requireAudience(jwtConfig.getAudience())
                     .build().parseSignedClaims(token);
             return true;
         } catch (MalformedJwtException e) {
@@ -101,12 +144,11 @@ public class JwtUtil {
     }
 
     private SecretKey getSecretKey() {
-        String sr = secret;
+        String sr = jwtConfig.getSecret();
         if (Strings.isNullOrEmpty(sr)) {
             sr = JwtConstants.DEFAULT_SECRET;
         }
         byte[] keyBytes = Base64.getDecoder().decode(sr);
         return Keys.hmacShaKeyFor(keyBytes);
-
     }
 }

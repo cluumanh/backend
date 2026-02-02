@@ -8,4 +8,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService extends BaseService<User, Long, UserDto> {
     boolean register(RegisterRequest registerRequest);
+    UserDto findByUserName(String userName);
 }

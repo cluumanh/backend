@@ -2,9 +2,9 @@ package com.lmc.backend.config.security;
 
 import com.lmc.backend.constant.ApiPaths;
 import com.lmc.backend.constant.Role;
-import com.lmc.backend.exception.JwtAccessDeniedHandler;
-import com.lmc.backend.exception.JwtAuthenticationEntryPoint;
-import com.lmc.backend.filter.JwtAuthenticationFilter;
+import com.lmc.backend.security.exception.JwtAccessDeniedHandler;
+import com.lmc.backend.security.exception.JwtAuthenticationEntryPoint;
+import com.lmc.backend.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +40,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(ApiPaths.PUBLIC_PATHS).permitAll()
-                        .requestMatchers(ApiPaths.ADMIN_PATHS).hasRole(Role.ADMIN.name())
-                        .requestMatchers(ApiPaths.USER_PATHS).hasRole(Role.USER.name())
+                        /*.requestMatchers(ApiPaths.ADMIN_PATHS).hasRole(Role.ADMIN.name())
+                        .requestMatchers(ApiPaths.USER_PATHS).hasRole(Role.USER.name())*/
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

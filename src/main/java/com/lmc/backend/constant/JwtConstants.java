@@ -11,4 +11,7 @@ public class JwtConstants {
     public static final String ROLES_CLAIM = "roles";
     public static final String ALGORITHM = "HS512";
     public static final String DEFAULT_SECRET = "default-secret";
+    public static final String ACCESS_TOKEN = "access";
+    public static final String REFRESH_TOKEN = "refresh";
+    public static final String TOKEN_TYPE_TEXT = "token-type";
 }

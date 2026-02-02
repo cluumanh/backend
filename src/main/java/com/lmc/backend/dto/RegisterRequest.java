@@ -1,13 +1,13 @@
 package com.lmc.backend.dto;
 
+import com.lmc.backend.constant.Role;
 import com.lmc.backend.constant.ValidationConstants;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Role;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -27,6 +27,6 @@ public class RegisterRequest {
     @Email(message = ValidationConstants.EMAIL_INVALID)
     private String email;
 
-    @NotBlank(message = ValidationConstants.ROLE_REQUIRED)
-    private String role;
+    @NotEmpty(message = ValidationConstants.ROLE_REQUIRED)
+    private List<@NotNull Role> roles;
 }

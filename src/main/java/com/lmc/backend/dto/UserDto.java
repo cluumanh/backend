@@ -1,22 +1,23 @@
 package com.lmc.backend.dto;
 
 import com.lmc.backend.constant.Role;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
-@Setter
+@SuperBuilder
 public class UserDto extends BaseDto<Long> implements UserDetails {
-    private String userName;
+    private String username;
     private String password;
     private String email;
     private Set<Role> roles;
@@ -35,6 +36,6 @@ public class UserDto extends BaseDto<Long> implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return username;
     }
 }

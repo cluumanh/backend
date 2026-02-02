@@ -1,4 +1,4 @@
-package com.lmc.backend.filter;
+package com.lmc.backend.security.filter;
 
 import com.google.common.base.Strings;
 import com.lmc.backend.config.security.JwtUtil;

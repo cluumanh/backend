@@ -1,4 +1,4 @@
-package com.lmc.backend.exception;
+package com.lmc.backend.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmc.backend.constant.HttpResponseConstants;

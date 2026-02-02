@@ -1,10 +1,13 @@
 package com.lmc.backend.controller;
 
+import com.lmc.backend.common.ApiResponseFactory;
 import com.lmc.backend.config.security.JwtUtil;
 import com.lmc.backend.constant.ApiPaths;
+import com.lmc.backend.constant.ErrorCode;
 import com.lmc.backend.constant.HttpResponseConstants;
+import com.lmc.backend.constant.UserPaths;
 import com.lmc.backend.dto.*;
-import com.lmc.backend.enity.User;
+import com.lmc.backend.exception.BusinessException;
 import com.lmc.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -26,11 +29,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-//@RequestMapping(ApiPaths.AUTH_BASE)
+@RequestMapping(UserPaths.ROOT)
 @Validated
 public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -44,12 +46,12 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PostMapping(ApiPaths.AUTH_LOGIN)
+    @PostMapping(UserPaths.LOGIN)
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         logger.info("LOGIN ENDPOINT CALLED");
         try {
             UserDetails user = authenticateUser(request);
-            String token = jwtUtil.generateToken(user);
+            String token = jwtUtil.generateAccessToken(user);
 
             logger.info("Login successful for user{}", request.getUsername());
 
@@ -60,14 +62,12 @@ public class AuthController {
         }
     }
 
-    @PostMapping(ApiPaths.AUTH_REGISTER)
+    @PostMapping(UserPaths.REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        try {
-            boolean isRegisterUser = userService.register(registerRequest);
-            return null;
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("");
+        if (userService.register(registerRequest)) {
+            return ResponseEntity.ok(ApiResponseFactory.success(ErrorCode.CREATED));
         }
+        throw new BusinessException(ErrorCode.INVALID_REQUEST);
     }
 
     private UserDetails authenticateUser(LoginRequest request) {
@@ -97,11 +97,5 @@ public class AuthController {
                         message,
                         System.currentTimeMillis()
                 ));
-    }
-
-
-    @GetMapping(ApiPaths.PUBLIC_HEALTH)
-    public ResponseEntity<?> health() {
-        return ResponseEntity.ok(new SuccessResponse("API is running", System.currentTimeMillis()));
     }
 }

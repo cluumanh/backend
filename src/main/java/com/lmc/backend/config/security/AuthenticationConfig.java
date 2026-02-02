@@ -1,6 +1,5 @@
 package com.lmc.backend.config.security;
 
-import com.lmc.backend.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
