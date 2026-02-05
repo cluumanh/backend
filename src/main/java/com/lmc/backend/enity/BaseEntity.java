@@ -1,13 +1,9 @@
 package com.lmc.backend.enity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @MappedSuperclass
@@ -24,6 +20,7 @@ public abstract class BaseEntity<ID> {
     @PrePersist
     protected void onCreate() {
         created = Instant.now();
+        updated = Instant.now();
     }
 
     @PreUpdate

@@ -1,4 +1,4 @@
-package com.lmc.backend.dto;
+package com.lmc.backend.dto.request;
 
 import com.lmc.backend.constant.Role;
 import com.lmc.backend.constant.ValidationConstants;

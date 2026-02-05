@@ -32,53 +32,25 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername());
     }
 
-    public String generationRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtConstants.TOKEN_TYPE_TEXT, JwtConstants.REFRESH_TOKEN);
         return createToken(claims, userDetails.getUsername());
-    }
-
-    private String extractTokenType(String token) {
-        return extractClaim(token, claims -> claims.get(JwtConstants.TOKEN_TYPE_TEXT, String.class));
-    }
-
-    public boolean isAccessTokenValid(String token, UserDetails userDetails) {
-        try {
-            final String username = extractUsername(token);
-            final String tokenType = extractTokenType(token);
-
-            return username.equals(userDetails.getUsername())
-                    && !isTokenExpired(token)
-                    && JwtConstants.ACCESS_TOKEN.equals(tokenType);
-        } catch (Exception e) {
-            logger.error("Token validation failed: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean isRefreshTokenValid(String token) {
-        try {
-            final String tokenType = extractTokenType(token);
-            return !isTokenExpired(token) && JwtConstants.REFRESH_TOKEN.equals(tokenType);
-        } catch (Exception e) {
-            logger.error("Refresh token validation failed: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
     }
 
     private List<String> extractRoles(UserDetails userDetails) {
         return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
+    }
+
+    private String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get(JwtConstants.TOKEN_TYPE_TEXT, String.class));
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -88,7 +60,7 @@ public class JwtUtil {
                 .claims(claims)
                 .subject(subject)
                 .issuedAt(new Date(now))
-                .expiration(new Date(now  + jwtConfig.getAccessExpiration()))
+                .expiration(new Date(now + jwtConfig.getAccessExpiration()))
                 .issuer(jwtConfig.getIssuer())
                 .audience().add(jwtConfig.getAudience()).and()
                 .signWith(getSecretKey())
@@ -113,7 +85,12 @@ public class JwtUtil {
                 .build().parseSignedClaims(token).getPayload();
     }
 
-    public boolean validateToken(String token) {
+    public boolean isTokenValid(String token) {
+        String claimType = extractTokenType(token);
+        return validateToken(token) && (claimType.equals(JwtConstants.ACCESS_TOKEN) || claimType.equals(JwtConstants.REFRESH_TOKEN));
+    }
+
+    private boolean validateToken(String token) {
         try {
             Jwts.parser()
                     .verifyWith(getSecretKey())
@@ -121,14 +98,18 @@ public class JwtUtil {
                     .requireAudience(jwtConfig.getAudience())
                     .build().parseSignedClaims(token);
             return true;
-        } catch (MalformedJwtException e) {
-            logger.error("Malformed JWT: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            logger.error("Expired JWT: {}", e.getMessage());
+            logger.warn("JWT expired: {}", e.getMessage());
+        } catch (SecurityException e) {
+            logger.warn("Invalid JWT signature: {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            logger.warn("Malformed JWT: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            logger.error("Unsupported JWT: {}", e.getMessage());
+            logger.warn("Unsupported JWT: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            logger.error("JWT claims empty: {}", e.getMessage());
+            logger.warn("JWT token is null or empty");
+        } catch (JwtException e) {
+            logger.warn("JWT validation failed: {}", e.getMessage());
         }
         return false;
     }

@@ -1,4 +1,4 @@
-package com.lmc.backend.dto;
+package com.lmc.backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

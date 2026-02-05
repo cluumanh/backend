@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = extractTokenFromRequest(request);
 
-            if (isValidToken(token)) {
+            if (isTokenValid(token)) {
                 authenticateUser(token, request);
             }
         } catch (Exception e) {
@@ -72,14 +72,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private boolean isValidToken(String token) {
-        return !Strings.isNullOrEmpty(token) && jwtUtil.validateToken(token);
+    private boolean isTokenValid(String token) {
+        return !Strings.isNullOrEmpty(token) && jwtUtil.isTokenValid(token);
     }
 
     private void authenticateUser(String token, HttpServletRequest request) {
         String username = jwtUtil.extractUsername(token);
 
-        if (username != null) {
+        if (!Strings.isNullOrEmpty(username)) {
             UserDetails user = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

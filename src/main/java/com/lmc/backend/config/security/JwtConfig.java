@@ -13,4 +13,5 @@ public class JwtConfig {
     private long refreshExpiration;
     private String issuer;
     private String audience;
+    private int maxActiveSessions;
 }

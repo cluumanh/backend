@@ -3,9 +3,9 @@ package com.lmc.backend.service.impl;
 import com.amazonaws.services.lambda.model.ResourceNotFoundException;
 import com.lmc.backend.repository.BaseRepository;
 import com.lmc.backend.service.BaseService;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
-@Transactional(readOnly = true)
+@Service
 public abstract class BaseServiceImpl<E, ID, R> implements BaseService<E, ID, R> {
     protected final BaseRepository<E, ID> repository;
 

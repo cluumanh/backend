@@ -1,7 +1,6 @@
 package com.lmc.backend.controller;
 
 
-import com.lmc.backend.constant.ApiPaths;
 import com.lmc.backend.constant.ErrorCode;
 import com.lmc.backend.constant.PublicPaths;
 import com.lmc.backend.dto.SuccessResponse;
@@ -21,6 +20,6 @@ public class PublicController {
 
     @GetMapping("/debug")
     public ResponseEntity<?> debug() {
-        throw new BusinessException(ErrorCode.FORBIDDEN);
+        throw new BusinessException(ErrorCode.FORBIDDEN, "Access denied");
     }
 }

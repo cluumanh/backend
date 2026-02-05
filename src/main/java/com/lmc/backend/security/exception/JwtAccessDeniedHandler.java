@@ -2,7 +2,7 @@ package com.lmc.backend.security.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmc.backend.constant.HttpResponseConstants;
-import com.lmc.backend.dto.ErrorResponse;
+import com.lmc.backend.dto.response.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

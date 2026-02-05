@@ -19,7 +19,7 @@ import java.time.Instant;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshToken extends BaseEntity<Long>{
+public class RefreshToken extends BaseEntity<Long> {
     @Column(nullable = false, unique = true, length = 500)
     private String token;
 
@@ -39,4 +39,12 @@ public class RefreshToken extends BaseEntity<Long>{
 
     @Column(name = "user_agent", length = 500)
     private String userAgent;
+
+    public boolean isExpired() {
+        return expiryDate.isBefore(Instant.now());
+    }
+
+    public void revoke() {
+        this.revoked = true;
+    }
 }
