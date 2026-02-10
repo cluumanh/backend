@@ -13,4 +13,15 @@ public enum Role {
     public String getDisplayName() {
         return displayName;
     }
+
+    public static Role fromAuthority(String authority) {
+        if (authority == null) {
+            throw new IllegalArgumentException("Authority is null");
+        }
+
+        return Role.valueOf(
+                authority.replace("ROLE_", "").toUpperCase()
+        );
+    }
 }
+

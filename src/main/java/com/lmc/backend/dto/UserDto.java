@@ -1,9 +1,8 @@
 package com.lmc.backend.dto;
 
 import com.lmc.backend.constant.Role;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,6 +22,7 @@ public class UserDto extends BaseDto<Long> implements UserDetails {
     private Set<Role> roles;
 
     @Override
+    @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
@@ -35,6 +35,7 @@ public class UserDto extends BaseDto<Long> implements UserDetails {
     }
 
     @Override
+    @NonNull
     public String getUsername() {
         return username;
     }
