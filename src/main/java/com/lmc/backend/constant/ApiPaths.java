@@ -11,9 +11,10 @@ public class ApiPaths {
     public static final String API_V1 = API + V1;
 
     public static final String[] PUBLIC_PATHS = {
-            UserPaths.ROOT + UserPaths.REGISTER,
-            UserPaths.ROOT + UserPaths.LOGIN,
+            AuthPaths.ROOT + AuthPaths.REGISTER,
+            AuthPaths.ROOT + AuthPaths.LOGIN,
             PublicPaths.ROOT + PublicPaths.HEALTH,
-            PublicPaths.ROOT + "/debug"
+            PublicPaths.ROOT + "/debug",
+            AdminPaths.USERS
     };
 }

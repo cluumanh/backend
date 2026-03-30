@@ -1,7 +1,7 @@
 package com.lmc.backend.service;
 
 import com.lmc.backend.dto.TokenPair;
-import com.lmc.backend.enity.User;
+import com.lmc.backend.entity.User;
 import com.lmc.backend.value.ClientInfo;
 
 public interface TokenManager {

@@ -1,6 +1,6 @@
 package com.lmc.backend.dto;
 
-import com.lmc.backend.enity.User;
+import com.lmc.backend.entity.User;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

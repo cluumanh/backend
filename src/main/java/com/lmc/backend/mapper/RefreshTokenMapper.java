@@ -1,7 +1,7 @@
 package com.lmc.backend.mapper;
 
 import com.lmc.backend.dto.RefreshTokenDto;
-import com.lmc.backend.enity.RefreshToken;
+import com.lmc.backend.entity.RefreshToken;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

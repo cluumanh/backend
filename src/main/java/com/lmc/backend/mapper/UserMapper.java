@@ -1,7 +1,7 @@
 package com.lmc.backend.mapper;
 
 import com.lmc.backend.dto.UserDto;
-import com.lmc.backend.enity.User;
+import com.lmc.backend.entity.User;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

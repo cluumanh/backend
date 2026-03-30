@@ -1,10 +1,8 @@
 package com.lmc.backend.service;
 
 import com.lmc.backend.dto.RefreshTokenDto;
-import com.lmc.backend.dto.UserDto;
-import com.lmc.backend.enity.RefreshToken;
-import com.lmc.backend.enity.User;
-import com.lmc.backend.value.ClientInfo;
+import com.lmc.backend.entity.RefreshToken;
+import com.lmc.backend.entity.User;
 
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package com.lmc.backend.enity;
+package com.lmc.backend.entity;
 
 import com.lmc.backend.constant.Role;
 import jakarta.persistence.*;
@@ -9,7 +9,18 @@ import java.util.Set;
 
 
 @Entity()
-@Table(name = "users")
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_user_status", columnList = "status"),
+                @Index(name = "idx_user_created", columnList = "created"),
+                @Index(name = "idx_user_username", columnList = "username"),
+                @Index(name = "idx_user_status_created", columnList = "status, created")
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_user_username", columnNames = "username"
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -19,6 +30,7 @@ public class User extends BaseEntity<Long> {
     private String username;
     private String password;
     private String email;
+    private String status;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)

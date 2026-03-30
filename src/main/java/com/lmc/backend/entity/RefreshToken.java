@@ -1,4 +1,4 @@
-package com.lmc.backend.enity;
+package com.lmc.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

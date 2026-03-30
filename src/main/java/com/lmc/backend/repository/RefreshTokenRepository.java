@@ -1,8 +1,7 @@
 package com.lmc.backend.repository;
 
-import com.lmc.backend.enity.RefreshToken;
-import com.lmc.backend.enity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.lmc.backend.entity.RefreshToken;
+import com.lmc.backend.entity.User;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

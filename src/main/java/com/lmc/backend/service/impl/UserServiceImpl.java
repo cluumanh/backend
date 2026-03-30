@@ -1,14 +1,20 @@
 package com.lmc.backend.service.impl;
 
 import com.google.common.base.Strings;
+import com.lmc.backend.common.PageableMapper;
+import com.lmc.backend.config.UserQueryConfig;
 import com.lmc.backend.constant.ErrorCode;
 import com.lmc.backend.constant.MessageConstants;
 import com.lmc.backend.dto.TokenPair;
 import com.lmc.backend.dto.UserDto;
+import com.lmc.backend.dto.UserFilter;
+import com.lmc.backend.dto.request.PageRequest;
 import com.lmc.backend.dto.request.RegisterRequest;
 import com.lmc.backend.dto.response.LoginResponse;
-import com.lmc.backend.enity.User;
+import com.lmc.backend.dto.response.PageResponse;
+import com.lmc.backend.entity.User;
 import com.lmc.backend.exception.BusinessException;
+import com.lmc.backend.filter.UserSpecification;
 import com.lmc.backend.mapper.UserMapper;
 import com.lmc.backend.repository.UserRepository;
 import com.lmc.backend.service.TokenManager;
@@ -18,6 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -94,9 +102,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserDto> implem
 
         ClientInfo clientInfo = extractClientInfo(httpServletRequest);
 
-        Optional<User> user = Optional.of(findByUserName(userDto.getUsername()).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, MessageConstants.USER_NOT_FOUND)));
+        Optional<UserDto> user = Optional.of(findByUserName(userDto.getUsername()).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND, MessageConstants.USER_NOT_FOUND)));
 
-        TokenPair tokenPair = tokenManager.createTokenPair(user.get(), clientInfo);
+        TokenPair tokenPair = tokenManager.createTokenPair(userMapper.toEntity(user.get()), clientInfo);
 
         if (tokenPair != null) {
             return LoginResponse.builder()
@@ -129,9 +137,30 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserDto> implem
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findByUserName(String userName) {
+    public Optional<UserDto> findByUserName(String userName) {
         if (Strings.isNullOrEmpty(userName))
             return Optional.empty();
-        return userRepository.findByUsername(userName);
+        Optional<User> user = userRepository.findByUsername(userName);
+        return user.map(userMapper::toDto);
+    }
+
+    @Override
+    public PageResponse<UserDto> findUsers(PageRequest<UserFilter> pageRequest) {
+        Pageable pageable = PageableMapper.toPageable(
+                pageRequest.getPage(),
+                pageRequest.getSize(),
+                pageRequest.getSort(),
+                UserQueryConfig.USER_ALLOWED,
+                UserQueryConfig.USER_DEFAULT,
+                100
+        );
+
+        Page<User> page = userRepository.findAll(
+                new UserSpecification(pageRequest.getFilters()),
+                pageable
+        );
+
+        Page<UserDto> dtoPage = page.map(userMapper::toDto);
+        return PageResponse.from(dtoPage);
     }
 }
